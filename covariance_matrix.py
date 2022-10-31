@@ -52,21 +52,18 @@ emg_cutoff_wake = wake_375_emg[(wake_375_emg['Frequency']>60) & (wake_375_emg['F
 #2. transform the data from a 2d input space to a 3D feature space to separate data linearly
 
 #create 3 dimensional vectors with averages to plot on 3d plot in matplotlib
-r_20_npy = REM_eeg_20_cutoff['Power'].to_numpy() #.mean()
-r_theta_npy = theta_REM_cutoff['Power'].to_numpy()
-r_emg_npy = emg_cutoff_REM['Power'].to_numpy()
+r_20_npy = REM_eeg_20_cutoff['Power'].to_numpy().mean()
+r_theta_npy = theta_REM_cutoff['Power'].to_numpy().mean()
+r_emg_npy = emg_cutoff_REM['Power'].to_numpy().mean()
 
-r_20_reshape = r_20_npy[0:12]
-r_emg_reshape = r_emg_npy[0:12]
 
-print(r_emg_reshape)
-print(r_20_reshape)
-print(r_theta_npy)
+print(r_20_npy, r_theta_npy, r_emg_npy)
 
-fig = plt.figure()
-ax = plt.axes(projection='3d')
-ax.scatter3D(r_emg_reshape, r_20_reshape, r_theta_npy, c=r_theta_npy, cmap='Greens')
-plt.show()
+
+#fig = plt.figure()
+#ax.scatter3D(r_emg_reshape, r_20_reshape, r_theta_npy, c=r_theta_npy, cmap='Greens')
+#ax = plt.axes(projection='3d')
+#plt.show()
 
 #3. find the centroid of each variable 
 
