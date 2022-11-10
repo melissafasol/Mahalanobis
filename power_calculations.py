@@ -38,6 +38,27 @@ class SleepScorerPowerSpectrum:
                 return eeg_feature_df, theta_feature_df
 
 
+    def harmonics_psd(self):
+        for data_array in self.data_without_noise:
+            power_arrays = scipy.signal.welch(data_array, self.sampling_rate, window = 'hann', nperseg = self.nperseg) 
+            power_array = power_arrays[1]
+            frequency_array = power_arrays[0]
+            power_data_theta = mean(power_array[30:40])
+            power_data_2_harmonic = mean(power_array[60:80])
+            power_data_3_harmonic = mean(power_array[120:160])
+            theta_feature = {'Frequency': [6], 'Theta_Power': [power_data_theta],
+                               'Animal_ID': [self.animal], 'Channel': [self.channel]}
+            harmonic_2_feature = {'Frequency': [12], 'Theta_Power': [power_data_2_harmonic],
+                                 'Animal_ID': [self.animal], 'Channel': [self.channel]}
+            harmonic_3_feature = {'Frequency': [24], 'Theta_Power': [power_data_3_harmonic],
+                                 'Animal_ID': [self.animal], 'Channel': [self.channel]}
+            theta_feature_df = pd.DataFrame(data = theta_feature)
+            harmonic_2_feature_df = pd.DataFrame(data = harmonic_2_feature)
+            harmonic_3_feature_df = pd.DataFrame(data = harmonic_3_feature)
+            return theta_feature_df, harmonic_2_feature_df, harmonic_3_feature_df
+
+
+
 class FeatureExtractionMahalanobis():
     
     def __init__(self, psd_per_epoch, frequency):
