@@ -11,18 +11,21 @@ from GRIN2B_constants import start_time_GRIN2B_baseline, end_time_GRIN2B_baselin
 from prepare_files import PrepareGRIN2B, LoadGRIN2B, br_seizure_files, one_second_timebins
 from filter import Filter
 
+from cepstrum import compute_cepstrum, cepstrum_f0_detection
+
 
 directory_npy_path = '/home/melissa/PREPROCESSING/GRIN2B/GRIN2B_numpy'
 seizure_br_path = '/home/melissa/PREPROCESSING/GRIN2B/seizures'
 channel_number_list =  [0,2,3,4,5,6,7,8,9,10,11,12,13,15]
 save_path = '/home/melissa/RESULTS/Mahalanobis/FFT'
-save_file_as = 'animal_364_fft.npy'
+save_file_as_quefrency = 'animal_364_quefrency.npy'
+save_file_as_cepstrum = 'animal_364_cepstrum.npy'
 seizure_df = []
 
 sampling_rate = 250.4
 nperseg = 250
 
-br_animal_IDs = ['364']
+br_animal_IDs = ['373']
 for animal in br_animal_IDs:
     prepare_GRIN2B = PrepareGRIN2B(directory_npy_path, animal)
     recording = prepare_GRIN2B.load_two_analysis_files(seizure = 'True')
@@ -41,16 +44,21 @@ for animal in br_animal_IDs:
             filtered_data_1 = filter_1.butter_bandpass(seizure = 'True')
 print('data filtered')
 
-fft_entire_signal = []
-for array in filtered_data_1:
+quefrency_vector_list = []
+cepstrum_list = []
+for array in filtered_data_1[0:100]:
     windowed_entire_signal = [np.hamming(250)*array for array in filtered_data_1]
     slices = np.vstack(windowed_entire_signal)
-    X = np.fft.fft(slices, axis = 0)
-    log_X = np.log(np.abs(X))
-    fft_entire_signal.append(log_X)
-    print('fft calculated' + str([array]))
+    for slice in slices:
+        quefrency_vector, cepstrum = compute_cepstrum(slice, sampling_rate)
+        quefrency_vector_list.append(quefrency_vector)
+        cepstrum_list.append(cepstrum)
+    print('cepstrum and quefrency calculated')
 
-fft_concat = np.vstack(fft_entire_signal)
+quefrency_concat = np.vstack(quefrency_vector_list)
+cepstrum_concat = np.vstack(cepstrum_list)
+print('vstack')
 os.chdir(save_path)
-np.save(save_file_as, fft_concat)
+np.save(save_file_as_quefrency, quefrency_concat)
+np.save(save_file_as_cepstrum, cepstrum_concat)
 print('files saved')
